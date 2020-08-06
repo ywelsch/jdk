@@ -89,7 +89,10 @@ public class SocketOptionTests {
             checkOption(ssc, TCP_KEEPIDLE, DEFAULT_KEEP_ALIVE_TIME);
             ssc.setOption(TCP_KEEPINTERVAL, DEFAULT_KEEP_ALIVE_INTVL);
             checkOption(ssc, TCP_KEEPINTERVAL, DEFAULT_KEEP_ALIVE_INTVL);
-
+        }
+        if (ssc.supportedOptions().contains(TCP_USER_TIMEOUT)) {
+            ssc.setOption(TCP_USER_TIMEOUT, 10000);
+            checkOption(ssc, TCP_USER_TIMEOUT, 10000);
         }
 
         // NullPointerException

@@ -32,6 +32,7 @@ ifeq ($(call isTargetOs, linux macosx), true)
   $(eval $(call SetupJdkLibrary, BUILD_LIBEXTNET, \
       NAME := extnet, \
       OPTIMIZATION := LOW, \
+      EXTRA_HEADER_DIRS := $(call GetJavaHeaderDir, java.base), \
       CFLAGS := $(CFLAGS_JDKLIB), \
       LDFLAGS := $(LDFLAGS_JDKLIB) \
           $(call SET_SHARED_LIBRARY_ORIGIN), \

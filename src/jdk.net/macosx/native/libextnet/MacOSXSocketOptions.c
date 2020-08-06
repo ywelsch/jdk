@@ -31,6 +31,7 @@
 #include <netinet/tcp.h>
 #include <netinet/in.h>
 #include "jni_util.h"
+#include <java_lang_Integer.h>
 
 /*
  * Declare library specific JNI_Onload entry if static build
@@ -149,4 +150,54 @@ JNIEXPORT jint JNICALL Java_jdk_net_MacOSXSocketOptions_getTcpKeepAliveIntvl0
     rv = getsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &optval, &sz);
     handleError(env, rv, "get option TCP_KEEPINTVL failed");
     return optval;
+}
+
+/*
+ * Class:     jdk_net_MacOSXSocketOptions
+ * Method:    userTimeoutSupported0
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_jdk_net_MacOSXSocketOptions_userTimeoutSupported0
+(JNIEnv *env, jobject unused) {
+    return socketOptionSupported(TCP_RXT_CONNDROPTIME);
+}
+
+/*
+ * Class:     jdk_net_MacOSXSocketOptions
+ * Method:    setTcpUserTimeout0
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_jdk_net_MacOSXSocketOptions_setTcpUserTimeout0
+(JNIEnv *env, jobject unused, jint fd, jint optval) {
+    // convert from milliseconds to seconds for TCP_RXT_CONNDROPTIME
+    if (optval > 0) {
+        // truncate toward zero, unless this results in 0
+        if (optval < 1000) {
+            // round up, as 0 has special meaning (default value)
+            optval = 1;
+        } else {
+            optval /= 1000;
+        }
+    }
+    jint rv = setsockopt(fd, IPPROTO_TCP, TCP_RXT_CONNDROPTIME, &optval, sizeof (optval));
+    handleError(env, rv, "set option TCP_RXT_CONNDROPTIME failed");
+}
+
+/*
+ * Class:     jdk_net_MacOSXSocketOptions
+ * Method:    getTcpUserTimeout0
+ * Signature: (I)I;
+ */
+JNIEXPORT jint JNICALL Java_jdk_net_MacOSXSocketOptions_getTcpUserTimeout0
+(JNIEnv *env, jobject unused, jint fd) {
+    jint optval, rv;
+    socklen_t sz = sizeof (optval);
+    rv = getsockopt(fd, IPPROTO_TCP, TCP_RXT_CONNDROPTIME, &optval, &sz);
+    handleError(env, rv, "get option TCP_RXT_CONNDROPTIME failed");
+    // convert from seconds to milliseconds, avoiding overflow
+    if (optval > (java_lang_Integer_MAX_VALUE / 1000)) {
+        return java_lang_Integer_MAX_VALUE;
+    } else {
+        return 1000 * optval;
+    }
 }

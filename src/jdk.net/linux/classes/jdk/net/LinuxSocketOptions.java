@@ -85,6 +85,21 @@ class LinuxSocketOptions extends PlatformSocketOptions {
     }
 
     @Override
+    boolean userTimeoutSupported() {
+        return userTimeoutSupported0();
+    }
+
+    @Override
+    void setTcpUserTimeout(int fd, final int value) throws SocketException {
+        setTcpUserTimeout0(fd, value);
+    }
+
+    @Override
+    int getTcpUserTimeout(int fd) throws SocketException {
+        return getTcpUserTimeout0(fd);
+    }
+
+    @Override
     boolean incomingNapiIdSupported() {
         return incomingNapiIdSupported0();
     }
@@ -100,6 +115,9 @@ class LinuxSocketOptions extends PlatformSocketOptions {
     private static native int getTcpkeepAliveProbes0(int fd) throws SocketException;
     private static native int getTcpKeepAliveTime0(int fd) throws SocketException;
     private static native int getTcpKeepAliveIntvl0(int fd) throws SocketException;
+    private static native boolean userTimeoutSupported0();
+    private static native void setTcpUserTimeout0(int fd, int value) throws SocketException;
+    private static native int getTcpUserTimeout0(int fd) throws SocketException;
     private static native void setQuickAck0(int fd, boolean on) throws SocketException;
     private static native boolean getQuickAck0(int fd) throws SocketException;
     private static native boolean keepAliveOptionsSupported0();

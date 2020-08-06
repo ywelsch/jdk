@@ -69,6 +69,21 @@ class MacOSXSocketOptions extends PlatformSocketOptions {
         return getTcpKeepAliveIntvl0(fd);
     }
 
+    @Override
+    boolean userTimeoutSupported() {
+        return userTimeoutSupported0();
+    }
+
+    @Override
+    void setTcpUserTimeout(int fd, int value) throws SocketException {
+        setTcpUserTimeout0(fd, value);
+    }
+
+    @Override
+    int getTcpUserTimeout(int fd) throws SocketException {
+        return getTcpUserTimeout0(fd);
+    }
+
     private static native void setTcpkeepAliveProbes0(int fd, int value) throws SocketException;
     private static native void setTcpKeepAliveTime0(int fd, int value) throws SocketException;
     private static native void setTcpKeepAliveIntvl0(int fd, int value) throws SocketException;
@@ -76,6 +91,9 @@ class MacOSXSocketOptions extends PlatformSocketOptions {
     private static native int getTcpKeepAliveTime0(int fd) throws SocketException;
     private static native int getTcpKeepAliveIntvl0(int fd) throws SocketException;
     private static native boolean keepAliveOptionsSupported0();
+    private static native boolean userTimeoutSupported0();
+    private static native void setTcpUserTimeout0(int fd, int value) throws SocketException;
+    private static native int getTcpUserTimeout0(int fd) throws SocketException;
     static {
         if (System.getSecurityManager() == null) {
             System.loadLibrary("extnet");

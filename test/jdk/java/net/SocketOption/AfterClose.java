@@ -107,6 +107,8 @@ public class AfterClose {
             map.put((SocketOption<?>)field.get(null), listOf(10, 100));
             field = c.getField("SO_INCOMING_NAPI_ID");
             map.put((SocketOption<?>)field.get(null), listOf(RO));
+            field = c.getField("TCP_USER_TIMEOUT");
+            map.put((SocketOption<?>)field.get(null), listOf(1000, 10000));
         } catch (ClassNotFoundException e) {
             // ignore, jdk.net module not present
         } catch (ReflectiveOperationException e) {

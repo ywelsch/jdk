@@ -37,6 +37,10 @@
 #define SO_INCOMING_NAPI_ID    56
 #endif
 
+#ifndef TCP_USER_TIMEOUT
+#define TCP_USER_TIMEOUT    18
+#endif
+
 static void handleError(JNIEnv *env, jint rv, const char *errmsg) {
     if (rv < 0) {
         if (errno == ENOPROTOOPT) {
@@ -192,6 +196,41 @@ JNIEXPORT jint JNICALL Java_jdk_net_LinuxSocketOptions_getTcpKeepAliveIntvl0
     socklen_t sz = sizeof (optval);
     rv = getsockopt(fd, SOL_TCP, TCP_KEEPINTVL, &optval, &sz);
     handleError(env, rv, "get option TCP_KEEPINTVL failed");
+    return optval;
+}
+
+/*
+ * Class:     jdk_net_LinuxSocketOptions
+ * Method:    userTimeoutSupported0
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_jdk_net_LinuxSocketOptions_userTimeoutSupported0
+(JNIEnv *env, jobject unused) {
+    return socketOptionSupported(SOL_TCP, TCP_USER_TIMEOUT);
+}
+
+/*
+ * Class:     jdk_net_LinuxSocketOptions
+ * Method:    setTcpUserTimeout0
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_jdk_net_LinuxSocketOptions_setTcpUserTimeout0
+(JNIEnv *env, jobject unused, jint fd, jint optval) {
+    jint rv = setsockopt(fd, SOL_TCP, TCP_USER_TIMEOUT, &optval, sizeof (optval));
+    handleError(env, rv, "set option TCP_USER_TIMEOUT failed");
+}
+
+/*
+ * Class:     jdk_net_LinuxSocketOptions
+ * Method:    getTcpUserTimeout0
+ * Signature: (I)I;
+ */
+JNIEXPORT jint JNICALL Java_jdk_net_LinuxSocketOptions_getTcpUserTimeout0
+(JNIEnv *env, jobject unused, jint fd) {
+    jint optval, rv;
+    socklen_t sz = sizeof (optval);
+    rv = getsockopt(fd, SOL_TCP, TCP_USER_TIMEOUT, &optval, &sz);
+    handleError(env, rv, "get option TCP_USER_TIMEOUT failed");
     return optval;
 }
 

@@ -286,6 +286,9 @@ public class Sockets {
                     ExtendedSocketOptions.TCP_KEEPIDLE,
                     ExtendedSocketOptions.TCP_KEEPINTERVAL));
         }
+        if (UserTimeout.AVAILABLE) {
+            set.add(ExtendedSocketOptions.TCP_USER_TIMEOUT);
+        }
         if (incomingNapiIdsupported) {
             set.add(ExtendedSocketOptions.SO_INCOMING_NAPI_ID);
         }
@@ -307,6 +310,9 @@ public class Sockets {
             set.addAll(Set.of(ExtendedSocketOptions.TCP_KEEPCOUNT,
                     ExtendedSocketOptions.TCP_KEEPIDLE,
                     ExtendedSocketOptions.TCP_KEEPINTERVAL));
+        }
+        if (UserTimeout.AVAILABLE) {
+            set.add(ExtendedSocketOptions.TCP_USER_TIMEOUT);
         }
         set.add(StandardSocketOptions.IP_TOS);
         if (incomingNapiIdsupported) {
@@ -375,6 +381,19 @@ public class Sockets {
             AVAILABLE = s.containsAll(Set.of(ExtendedSocketOptions.TCP_KEEPCOUNT,
                                             ExtendedSocketOptions.TCP_KEEPIDLE,
                                             ExtendedSocketOptions.TCP_KEEPINTERVAL));
+        }
+    }
+
+    /**
+     * Tells whether TCP_USER_TIMEOUT is supported.
+     */
+    static class UserTimeout {
+
+        static final boolean AVAILABLE;
+
+        static {
+            Set<SocketOption<?>> s = new Socket().supportedOptions();
+            AVAILABLE = s.contains(ExtendedSocketOptions.TCP_USER_TIMEOUT);
         }
     }
 }

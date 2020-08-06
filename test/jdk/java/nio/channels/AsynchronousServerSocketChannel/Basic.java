@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPCOUNT;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPIDLE;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPINTERVAL;
+import static jdk.net.ExtendedSocketOptions.TCP_USER_TIMEOUT;
 
 public class Basic {
 
@@ -180,6 +181,10 @@ public class Basic {
                 checkOption(ch, TCP_KEEPINTERVAL, 123);
                 ch.setOption(TCP_KEEPCOUNT, 7);
                 checkOption(ch, TCP_KEEPCOUNT, 7);
+            }
+            if (options.contains(TCP_USER_TIMEOUT)) {
+                ch.setOption(TCP_USER_TIMEOUT, 10000);
+                checkOption(ch, TCP_USER_TIMEOUT, 10000);
             }
         } finally {
             ch.close();

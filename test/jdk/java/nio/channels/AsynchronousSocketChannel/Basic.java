@@ -46,6 +46,7 @@ import java.util.List;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPCOUNT;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPIDLE;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPINTERVAL;
+import static jdk.net.ExtendedSocketOptions.TCP_USER_TIMEOUT;
 
 public class Basic {
     private static final Random RAND = RandomFactory.getRandom();
@@ -197,6 +198,10 @@ public class Basic {
                 checkOption(ch, TCP_KEEPINTERVAL, 123);
                 ch.setOption(TCP_KEEPCOUNT, 7);
                 checkOption(ch, TCP_KEEPCOUNT, 7);
+            }
+            if (options.contains(TCP_USER_TIMEOUT)) {
+                ch.setOption(TCP_USER_TIMEOUT, 10000);
+                checkOption(ch, TCP_USER_TIMEOUT, 10000);
             }
         }
     }

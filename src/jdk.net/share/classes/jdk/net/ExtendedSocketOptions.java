@@ -153,6 +153,28 @@ public final class ExtendedSocketOptions {
             = new ExtSocketOption<Integer>("TCP_KEEPCOUNT", Integer.class);
 
     /**
+     * Maximum amount of time that transmitted data may remain unacknowledged
+     * before the connection is forcibly closed.
+     *
+     * <p>
+     * The value of this socket option is an {@code Integer} that is the
+     * maxium number of milliseconds to wait for transmitted data to be
+     * acknowledged before TCP forcibly closes the corresponding connection.
+     * The socket option is specific to stream-oriented sockets using the
+     * TCP/IP protocol. The exact semantics of this socket option are system
+     * dependent.
+     *
+     * <p>
+     * Increasing user timeouts allows a TCP connection to survive extended
+     * periods without end-to-end connectivity. Decreasing user timeouts
+     * allows applications to "fail fast", if so desired.
+     *
+     * @since 16
+     */
+    public static final SocketOption<Integer> TCP_USER_TIMEOUT
+            = new ExtSocketOption<Integer>("TCP_USER_TIMEOUT", Integer.class);
+
+    /**
      * Identifies the receive queue that the last incoming packet for the socket
      * was received on.
      *
@@ -187,6 +209,8 @@ public final class ExtendedSocketOptions {
             platformSocketOptions.quickAckSupported();
     private static final boolean keepAliveOptSupported =
             platformSocketOptions.keepAliveOptionsSupported();
+    private static final boolean userTimeoutSupported =
+            platformSocketOptions.userTimeoutSupported();
     private static final boolean incomingNapiIdOptSupported  =
             platformSocketOptions.incomingNapiIdSupported();
     private static final Set<SocketOption<?>> extendedOptions = options();
@@ -201,6 +225,9 @@ public final class ExtendedSocketOptions {
         }
         if (keepAliveOptSupported) {
             options.addAll(Set.of(TCP_KEEPCOUNT, TCP_KEEPIDLE, TCP_KEEPINTERVAL));
+        }
+        if (userTimeoutSupported) {
+            options.add(TCP_USER_TIMEOUT);
         }
         return Collections.unmodifiableSet(options);
     }
@@ -228,6 +255,8 @@ public final class ExtendedSocketOptions {
                     setTcpKeepAliveTime(fd, (Integer) value);
                 } else if (option == TCP_KEEPINTERVAL) {
                     setTcpKeepAliveIntvl(fd, (Integer) value);
+                } else if (option == TCP_USER_TIMEOUT) {
+                    setTcpUserTimeout(fd, (Integer) value);
                 } else if (option == SO_INCOMING_NAPI_ID) {
                     if (!incomingNapiIdOptSupported)
                         throw new UnsupportedOperationException("Attempt to set unsupported option " + option);
@@ -255,6 +284,8 @@ public final class ExtendedSocketOptions {
                     return getTcpKeepAliveTime(fd);
                 } else if (option == TCP_KEEPINTERVAL) {
                     return getTcpKeepAliveIntvl(fd);
+                } else if (option == TCP_USER_TIMEOUT) {
+                    return getTcpUserTimeout(fd);
                 } else if (option == SO_INCOMING_NAPI_ID) {
                     return getIncomingNapiId(fd);
                 } else {
@@ -292,6 +323,11 @@ public final class ExtendedSocketOptions {
         platformSocketOptions.setTcpKeepAliveIntvl(fdAccess.get(fd), value);
     }
 
+    private static void setTcpUserTimeout(FileDescriptor fd, int value)
+            throws SocketException {
+        platformSocketOptions.setTcpUserTimeout(fdAccess.get(fd), value);
+    }
+
     private static int getTcpkeepAliveProbes(FileDescriptor fd) throws SocketException {
         return platformSocketOptions.getTcpkeepAliveProbes(fdAccess.get(fd));
     }
@@ -302,6 +338,10 @@ public final class ExtendedSocketOptions {
 
     private static int getTcpKeepAliveIntvl(FileDescriptor fd) throws SocketException {
         return platformSocketOptions.getTcpKeepAliveIntvl(fdAccess.get(fd));
+    }
+
+    private static int getTcpUserTimeout(FileDescriptor fd) throws SocketException {
+        return platformSocketOptions.getTcpUserTimeout(fdAccess.get(fd));
     }
 
     private static int getIncomingNapiId(FileDescriptor fd) throws SocketException {
@@ -383,6 +423,18 @@ public final class ExtendedSocketOptions {
 
         int getTcpKeepAliveIntvl(int fd) throws SocketException {
             throw new UnsupportedOperationException("unsupported TCP_KEEPINTVL option");
+        }
+
+        boolean userTimeoutSupported() {
+            return false;
+        }
+
+        void setTcpUserTimeout(int fd, final int value) throws SocketException {
+            throw new UnsupportedOperationException("unsupported TCP_USER_TIMEOUT option");
+        }
+
+        int getTcpUserTimeout(int fd) throws SocketException {
+            throw new UnsupportedOperationException("unsupported TCP_USER_TIMEOUT option");
         }
 
         boolean incomingNapiIdSupported() {

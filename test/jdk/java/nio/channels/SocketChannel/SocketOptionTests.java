@@ -37,6 +37,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
+import java.util.HashSet;
 import java.util.Set;
 import sun.net.ext.ExtendedSocketOptions;
 import static java.net.StandardSocketOptions.*;
@@ -62,14 +63,14 @@ public class SocketOptionTests {
         Set<SocketOption<?>> extendedOptions = ExtendedSocketOptions.clientSocketOptions();
         Set<SocketOption<?>> keepAliveOptions = Set.of(TCP_KEEPCOUNT, TCP_KEEPIDLE, TCP_KEEPINTERVAL);
         boolean keepAliveOptionsSupported = extendedOptions.containsAll(keepAliveOptions);
-        Set<SocketOption<?>> expected;
+        boolean userTimeoutSupported = extendedOptions.contains(TCP_USER_TIMEOUT);
+        Set<SocketOption<?>> expected = new HashSet<>();
+        expected.addAll(Set.of(SO_SNDBUF, SO_RCVBUF, SO_KEEPALIVE, SO_REUSEADDR, SO_LINGER, TCP_NODELAY));
         if (keepAliveOptionsSupported) {
-            expected = Set.of(SO_SNDBUF, SO_RCVBUF, SO_KEEPALIVE,
-                    SO_REUSEADDR, SO_LINGER, TCP_NODELAY, TCP_KEEPCOUNT,
-                    TCP_KEEPIDLE, TCP_KEEPINTERVAL);
-        } else {
-            expected = Set.of(SO_SNDBUF, SO_RCVBUF, SO_KEEPALIVE,
-                    SO_REUSEADDR, SO_LINGER, TCP_NODELAY);
+            expected.addAll(Set.of(TCP_KEEPCOUNT, TCP_KEEPIDLE, TCP_KEEPINTERVAL));
+        }
+        if (userTimeoutSupported) {
+            expected.add(TCP_USER_TIMEOUT);
         }
         for (SocketOption opt: expected) {
             if (!sc.supportedOptions().contains(opt))
@@ -141,6 +142,10 @@ public class SocketOptionTests {
             checkOption(sc, TCP_KEEPINTERVAL, 123);
             sc.setOption(TCP_KEEPCOUNT, 7);
             checkOption(sc, TCP_KEEPCOUNT, 7);
+        }
+        if (userTimeoutSupported) {
+            sc.setOption(TCP_USER_TIMEOUT, 10000);
+            checkOption(sc, TCP_USER_TIMEOUT, 10000);
         }
         // NullPointerException
         try {
